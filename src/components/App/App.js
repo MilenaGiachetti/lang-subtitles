@@ -3,8 +3,15 @@ import './App.scss';
 //import youtube from '../../apis/youtube';
 import Axios from 'axios';
 
+const entities = {
+	'&#039;': "'",
+	'&quot;': '"',
+	'&#39;': "'",
+	// add the ones in htmlEntities if needed if needed
+};
 function App() {
-  	const [captions, setCaptions] = useState([]);
+	const [captions, setCaptions] = useState([]);
+	  
 
  	const getCaptions = useCallback((target, native, id) => {
 		const targetCaptionsRequest = Axios.get(`http://video.google.com/timedtext?lang=${target}&v=${id}`);
@@ -26,8 +33,9 @@ function App() {
 				// time -> converted to min (todo: improve transformation to ex. 2:32 instead)
 				let time = (targetCaptionsArray[i].getAttribute("start") / 60).toFixed(2) + " min";
 				// inner text
-				let targetText = targetCaptionsArray[i].childNodes[0].textContent;        
-				let nativeText = nativeCaptionsArray[i].childNodes[0].textContent;   
+				let targetText = targetCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]);       
+				let nativeText = nativeCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]);  
+				console.log(targetText); 
 				captionsArrayState.push({id: (time), time: time, targetText: targetText, nativeText: nativeText});
 			}
 			// for (let caption of targetCaptionsArray) {
