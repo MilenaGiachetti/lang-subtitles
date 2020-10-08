@@ -31,11 +31,14 @@ function App() {
 			let captionsArrayState = [];
 			for (let i = 0; i < targetCaptionsArray.length; i++){
 				// time -> converted to min (todo: improve transformation to ex. 2:32 instead)
-				let time = (targetCaptionsArray[i].getAttribute("start") / 60).toFixed(2) + " min";
+				let timeInSecs = Math.floor(targetCaptionsArray[i].getAttribute("start"));
+				let time = `${Math.floor((timeInSecs/60))}:${(timeInSecs%60) > 9 ? (timeInSecs%60) : "0" + (timeInSecs%60)}`;
 				// inner text
-				let targetText = targetCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]);       
-				let nativeText = nativeCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]);  
-				console.log(targetText); 
+				let targetText =  targetCaptionsArray[i] ? targetCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : null;       
+				let nativeText = nativeCaptionsArray[i] ? nativeCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : "";  
+				//console.log(targetText); 
+				console.log(timeInSecs);
+
 				captionsArrayState.push({id: (time), time: time, targetText: targetText, nativeText: nativeText});
 			}
 			// for (let caption of targetCaptionsArray) {
@@ -63,8 +66,7 @@ function App() {
 		// 	//response.data.items.forEach(item => getCaptions(item.id));
 		// })
 		// getCaptions("en", "TiSM8AEkuJA", true);
-		getCaptions("en", "es", "TiSM8AEkuJA");
-
+		getCaptions("ko", "en", "Ux8s1YmUI2g");
 	}, [getCaptions])
 
 	return (
@@ -72,7 +74,7 @@ function App() {
 		<header className="App-header"></header>
 		<main>
 			{/* todo: improve iframe title */}
-			<iframe id="ytplayer" type="text/html" title="youtube video" width="640" height="360" src="http://www.youtube.com/embed/TiSM8AEkuJA?autoplay=1&origin=http://example.com" frameBorder="0"/>
+			<iframe id="ytplayer" type="text/html" title="youtube video" width="640" height="360" src="http://www.youtube.com/embed/Ux8s1YmUI2g?autoplay=1&origin=http://example.com" frameBorder="0"/>
 			<div className="captions">
 			{captions.length !== 0 ? 
 				captions.map(caption => {
