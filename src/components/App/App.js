@@ -9,10 +9,11 @@ const entities = {
 	'&#39;': "'",
 	// add the ones in htmlEntities if needed if needed
 };
+
+//http://video.google.com/timedtext?type=list&v={video_id} // get list caption
 function App() {
 	const [captions, setCaptions] = useState([]);
 	  
-
  	const getCaptions = useCallback((target, native, id) => {
 		const targetCaptionsRequest = Axios.get(`http://video.google.com/timedtext?lang=${target}&v=${id}`);
 		const nativeCaptionsRequest = Axios.get(`http://video.google.com/timedtext?lang=${native}&v=${id}`);
@@ -21,38 +22,48 @@ function App() {
 			const [targetCaptionsRequest, nativeCaptionsRequest] = responses;
 
 			let parser = new DOMParser();
-			let targetCaptionsParsed = parser.parseFromString(targetCaptionsRequest.data,"text/xml");
-			let nativeCaptionsParsed = parser.parseFromString(nativeCaptionsRequest.data,"text/xml");
+			let targetCaptionsParsed = parser.parseFromString(targetCaptionsRequest.data,"text/xml").getElementsByTagName("text");
+			let nativeCaptionsParsed = parser.parseFromString(nativeCaptionsRequest.data,"text/xml").getElementsByTagName("text");
 			
-			let targetCaptionsArray = targetCaptionsParsed.getElementsByTagName("text");
-			let nativeCaptionsArray = nativeCaptionsParsed.getElementsByTagName("text");
-
-
-			let captionsArrayState = [];
-			for (let i = 0; i < targetCaptionsArray.length; i++){
+			let targetCaptionsArray = [];
+			let nativeCaptionsArray = [];
+			
+			for (let i = 0; i < targetCaptionsParsed.length; i++){
 				// time -> converted to min (todo: improve transformation to ex. 2:32 instead)
-				let timeInSecs = Math.floor(targetCaptionsArray[i].getAttribute("start"));
+				let timeInSecs = Math.floor(targetCaptionsParsed[i].getAttribute("start"));
 				let time = `${Math.floor((timeInSecs/60))}:${(timeInSecs%60) > 9 ? (timeInSecs%60) : "0" + (timeInSecs%60)}`;
 				// inner text
-				let targetText =  targetCaptionsArray[i] ? targetCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : null;       
-				let nativeText = nativeCaptionsArray[i] ? nativeCaptionsArray[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : "";  
-				//console.log(targetText); 
-				console.log(timeInSecs);
+				let targetText =  targetCaptionsParsed[i] ? targetCaptionsParsed[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : null;       
 
-				captionsArrayState.push({id: (time), time: time, targetText: targetText, nativeText: nativeText});
+				targetCaptionsArray.push({id: (time), time: time, targetText: targetText});
 			}
-			// for (let caption of targetCaptionsArray) {
-			// 	// time -> converted to min (todo: improve transformation to ex. 2:32 instead)
-			// 	let time = (caption.getAttribute("start") / 60).toFixed(2) + " min";
-			// 	// inner text
-			// 	let text = caption.childNodes[0];        
-			// 	captionsArrayState.push({id: (time), time: time, targetText: text});
-			// }
+			for (let i = 0; i < nativeCaptionsParsed.length; i++){
+				// time -> converted to min (todo: improve transformation to ex. 2:32 instead)
+				let timeInSecs = Math.floor(nativeCaptionsParsed[i].getAttribute("start"));
+				let time = `${Math.floor((timeInSecs/60))}:${(timeInSecs%60) > 9 ? (timeInSecs%60) : "0" + (timeInSecs%60)}`;
+				// inner text
+				let nativeText =  nativeCaptionsParsed[i] ? nativeCaptionsParsed[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : null;       
 
-			setCaptions(captionsArrayState);
-		  })).catch(error => {
+				nativeCaptionsArray.push({id: (time), time: time, nativeText: nativeText});
+			}
+
+			const map = new Map();
+			targetCaptionsArray.forEach(item => map.set(item.id, item));
+			nativeCaptionsArray.forEach(item => map.set(item.id, {...map.get(item.id), ...item}));
+			const mergedArr = Array.from(map.values());
+
+			const exceptions = (firstArray, secondArray) => {
+				return firstArray.filter(firstArrayItem =>
+				  !secondArray.some(
+					secondArrayItem => firstArrayItem.id === secondArrayItem.id
+				  )
+				);
+			  };
+			  console.log(exceptions(nativeCaptionsArray, targetCaptionsArray))
+			setCaptions(mergedArr);
+		})).catch(error => {
 			console.log(error);
-		  })
+		})
 	}, [])
 
 	useEffect(() => {
@@ -88,3 +99,4 @@ function App() {
 }
 
 export default App;
+
