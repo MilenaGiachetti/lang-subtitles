@@ -13,6 +13,8 @@ const entities = {
 //http://video.google.com/timedtext?type=list&v={video_id} // get list caption
 function App() {
 	const [captions, setCaptions] = useState([]);
+	const [nativeBlur, setNativeBlur] = useState(false);
+	const [targetBlur, setTargetBlur] = useState(false);
 	  
  	const getCaptions = useCallback((target, native, id) => {
 		const targetCaptionsRequest = Axios.get(`http://video.google.com/timedtext?lang=${target}&v=${id}`);
@@ -80,16 +82,37 @@ function App() {
 		getCaptions("ko", "en", "Ux8s1YmUI2g");
 	}, [getCaptions])
 
+	const toggleBlur = (event) => {
+		console.log(event.target.value);
+		if (event.target.value === "blur-native") {
+			setNativeBlur(prevState => !prevState);
+		} else {
+			setTargetBlur(prevState => !prevState);
+		}
+	}
+
 	return (
 		<div className="App">
 		<header className="App-header"></header>
 		<main>
 			{/* todo: improve iframe title */}
 			<iframe id="ytplayer" type="text/html" title="youtube video" width="640" height="360" src="http://www.youtube.com/embed/Ux8s1YmUI2g?autoplay=1&origin=http://example.com" frameBorder="0"/>
+			<div >
+				<input type="checkbox" value="blur-native" id="blur-native" onChange={toggleBlur}/>
+				<label htmlFor="blur-native">Hide text in native language</label>
+				<input type="checkbox" value="blur-target" id="blur-target" onChange={toggleBlur}/>
+				<label htmlFor="blur-target">Hide text in target language</label>
+			</div>
 			<div className="captions">
 			{captions.length !== 0 ? 
 				captions.map(caption => {
-					return <p key={caption.id}>{caption.time} {caption.targetText} <br/> {caption.nativeText}</p>
+					return (
+						<div className="caption" key={caption.id}>
+							<p className="caption-time">{caption.time}</p>
+							<p className={targetBlur ? "caption-target caption-blur" : "caption-target"}>{caption.targetText}</p>
+							<p className={nativeBlur ? "caption-native caption-blur" : "caption-native"}>{caption.nativeText}</p>
+						</div>
+					)
 				})
 			: null}
 			</div>
