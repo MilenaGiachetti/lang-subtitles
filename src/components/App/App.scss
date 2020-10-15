@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  	text-align: center;
 }
 
 // @media (prefers-reduced-motion: no-preference) {
@@ -16,3 +16,26 @@
 //     transform: rotate(360deg);
 //   }
 // }
+
+.container {
+	max-width: 960px;
+	padding: 0 20px;
+	margin: 0 auto;
+}
+
+.video-constructor {
+	min-height: 200px;
+	padding: 20px;
+	border: 1px solid blue;
+	text-align: left;
+}
+.video-constructor form{
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+	justify-content: center;
+}
+.video-constructor form input{
+	width: 100%;
+	margin-top: 10px;
+}

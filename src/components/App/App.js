@@ -3,7 +3,6 @@ import './App.scss';
 //import youtube from '../../apis/youtube';
 import Captions from '../../routes/Captions/Captions';
 
-let captions;
 //http://video.google.com/timedtext?type=list&v={video_id} // get list caption
 function App() {
 	const [video, setVideo] = useState(false);
@@ -17,22 +16,31 @@ function App() {
 			[input]: newValue
 		}))
 	}
-
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		setVideo(true);
+	}
 	return (
 		<div className="App">
 			<header className="App-header"></header>
-			<main>
-				<div className="video-select">
-					<label htmlFor="videoId">Video Id</label>
-					<input type="text" id="videoId" name="videoId" value={videoProps.videoId} onChange={(e) => updateProps (e)} />
-					<label htmlFor="target">Target Language</label>
-					<input type="text" id="target" name="target" value={videoProps.target} onChange={(e) => updateProps (e)} />
-					<label htmlFor="native" >Native Language</label>
-					<input type="text" id="native" name="native" value={videoProps.native} onChange={(e) => updateProps (e)} />
-					<input type="submit" onClick={()=>setVideo(true)} />
+			<main className="main">
+				<div className="container">
+					{!video ? 
+						<div className="video-constructor">
+							<form className="video-select" method="get" >
+								<label htmlFor="videoId">Video Id</label>
+								<input type="text" id="videoId" name="videoId" value={videoProps.videoId} onChange={(e) => updateProps (e)} required />
+								<label htmlFor="target">Target Language</label>
+								<input type="text" id="target" name="target" value={videoProps.target} onChange={(e) => updateProps (e)} required />
+								<label htmlFor="native" >Native Language</label>
+								<input type="text" id="native" name="native" value={videoProps.native} onChange={(e) => updateProps (e)} required />
+								<input type="submit" onClick={(e)=>handleSubmit(e)} />
+							</form>
+							<p>Ex. videoId: "Ux8s1YmUI2g" - target: "ko" - native: "en"</p>
+						</div>
+					: null}
+					{video ? <Captions target={videoProps.target} native={videoProps.native} videoId={videoProps.videoId} /> : null}
 				</div>
-				<p>target: "ko", native: "en", videoId: "Ux8s1YmUI2g"</p>
-				{video ? <Captions target={videoProps.target} native={videoProps.native} videoId={videoProps.videoId} /> : null}
 			</main>
 		</div>
 	);
