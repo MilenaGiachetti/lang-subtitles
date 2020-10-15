@@ -11,7 +11,7 @@ const entities = {
 };
 
 //http://video.google.com/timedtext?type=list&v={video_id} // get list caption
-function Captions() {
+function Captions(props) {
 	const [captions, setCaptions] = useState([]);
 	const [nativeBlur, setNativeBlur] = useState(false);
 	const [targetBlur, setTargetBlur] = useState(false);
@@ -37,7 +37,7 @@ function Captions() {
 				// inner text
 				let targetText =  targetCaptionsParsed[i] ? targetCaptionsParsed[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : null;       
 
-				targetCaptionsArray.push({id: (time), time: time, targetText: targetText});
+				targetCaptionsArray.push({time: time, targetText: targetText, timeInSecs: timeInSecs});
 			}
 			for (let i = 0; i < nativeCaptionsParsed.length; i++){
 				// time -> converted to min (todo: improve transformation to ex. 2:32 instead)
@@ -46,23 +46,24 @@ function Captions() {
 				// inner text
 				let nativeText =  nativeCaptionsParsed[i] ? nativeCaptionsParsed[i].childNodes[0].textContent.replace(/&#?\w+;/g, match => entities[match]) : null;       
 
-				nativeCaptionsArray.push({id: (time), time: time, nativeText: nativeText});
+				nativeCaptionsArray.push({time: time, nativeText: nativeText});
 			}
 
 			const map = new Map();
-			targetCaptionsArray.forEach(item => map.set(item.id, item));
-			nativeCaptionsArray.forEach(item => map.set(item.id, {...map.get(item.id), ...item}));
+			targetCaptionsArray.forEach(item => map.set(item.time, item));
+			nativeCaptionsArray.forEach(item => map.set(item.time, {...map.get(item.time), ...item}));
 			const mergedArr = Array.from(map.values());
 
 			const exceptions = (firstArray, secondArray) => {
 				return firstArray.filter(firstArrayItem =>
 				  !secondArray.some(
-					secondArrayItem => firstArrayItem.id === secondArrayItem.id
+					secondArrayItem => firstArrayItem.time === secondArrayItem.time
 				  )
 				);
 			  };
 			  console.log(exceptions(nativeCaptionsArray, targetCaptionsArray))
 			setCaptions(mergedArr);
+			console.log(mergedArr);
 		})).catch(error => {
 			console.log(error);
 		})
@@ -79,8 +80,8 @@ function Captions() {
 		// 	//response.data.items.forEach(item => getCaptions(item.id));
 		// })
 		// getCaptions("en", "TiSM8AEkuJA", true);
-		getCaptions("ko", "en", "Ux8s1YmUI2g");
-	}, [getCaptions])
+		getCaptions(props.target, props.native, props.videoId);
+	}, [getCaptions, props.target, props.native, props.videoId])
 
 	const toggleBlur = (event) => {
 		console.log(event.target.value);
@@ -94,8 +95,9 @@ function Captions() {
 	return (
         <Fragment>
 			{/* todo: improve iframe title */}
+			{/* <div id="player" ref={video}></div> */}
 			<iframe id="ytplayer" type="text/html" title="youtube video" width="640" height="360" src="http://www.youtube.com/embed/Ux8s1YmUI2g?autoplay=1&origin=http://example.com" frameBorder="0"/>
-			<div >
+			<div>
 				<input type="checkbox" value="blur-native" id="blur-native" onChange={toggleBlur}/>
 				<label htmlFor="blur-native">Hide text in native language</label>
 				<input type="checkbox" value="blur-target" id="blur-target" onChange={toggleBlur}/>
@@ -105,7 +107,7 @@ function Captions() {
 			{captions.length !== 0 ? 
 				captions.map(caption => {
 					return (
-						<div className={classes.caption} key={caption.id}>
+						<div className={classes.caption} key={caption.time}>
 							<p className={classes.captionTime}>{caption.time}</p>
 							<p className={targetBlur ? `${classes.captionTarget} ${classes.captionBlur}` : classes.captionTarget}>{caption.targetText}</p>
 							<p className={nativeBlur ? `${classes.captionNative} ${classes.captionBlur}` : classes.captionNative}>{caption.nativeText}</p>
