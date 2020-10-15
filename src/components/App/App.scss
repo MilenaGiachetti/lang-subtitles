@@ -16,15 +16,3 @@
 //     transform: rotate(360deg);
 //   }
 // }
-
-.captions .caption .caption-time {
-  font-weight: bolder;
-}
-.captions .caption .caption-blur {
-  color: transparent;
-  text-shadow: 0 0 5px rgba(0,0,0,0.5);
-}
-.captions .caption .caption-blur:hover {
-  color: #000;
-  text-shadow: unset;
-}

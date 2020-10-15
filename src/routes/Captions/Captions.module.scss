@@ -1,0 +1,11 @@
+.captions .caption .captionTime {
+    font-weight: bolder;
+}
+.captions .caption .captionBlur {
+    color: transparent;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+.captions .caption .captionBlur:hover {
+    color: #000;
+    text-shadow: unset;
+}
