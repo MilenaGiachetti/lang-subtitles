@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, Fragment } from 'react';
 import classes from './Captions.module.scss';
 //import youtube from '../../apis/youtube';
 import Axios from 'axios';
@@ -92,8 +92,7 @@ function Captions() {
 	}
 
 	return (
-        // Replace for non html container
-        <div>
+        <Fragment>
 			{/* todo: improve iframe title */}
 			<iframe id="ytplayer" type="text/html" title="youtube video" width="640" height="360" src="http://www.youtube.com/embed/Ux8s1YmUI2g?autoplay=1&origin=http://example.com" frameBorder="0"/>
 			<div >
@@ -115,7 +114,7 @@ function Captions() {
 				})
 			: null}
 			</div>
-        </div>
+        </Fragment>
 	);
 }
 
