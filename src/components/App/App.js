@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import './App.scss';
 import Captions from '../../routes/Captions/Captions';
+import Home from '../../routes/Home/Home';
 import youtube from '../../apis/youtube';
 
 //http://video.google.com/timedtext?type=list&v={video_id} // get list caption
@@ -19,6 +20,7 @@ function App() {
 		}))
 	}
 	const handleSubmit = (e) => {
+		// list of available captions  http://video.google.com/timedtext?type=list&v=zzfCVBSsvqA request.
 		youtube.get('/captions', {
 			params: {
 				videoId: videoProps.videoId,
@@ -40,6 +42,7 @@ function App() {
 			<header className="App-header"></header>
 			<main className="main">
 				<div className="container">
+					<Home/>
 					{!video ? 
 						<div className="video-constructor">
 							<form className="video-select" method="get" >
